@@ -1,3 +1,4 @@
+// lib/services/pedometer_service.dart
 import 'dart:async';
 import 'package:pedometer/pedometer.dart';
 
@@ -6,30 +7,29 @@ typedef StepDeltaCallback = void Function(int delta, int counter, DateTime ts);
 class PedometerService {
   StreamSubscription<StepCount>? _sub;
   int? _lastCounter;
+  bool get isRunning => _sub != null;
 
-  /// Start listening to pedometer. Calls [onAnyEvent] on every raw sensor event
-  /// (even if delta == 0), and [onDelta] only when delta > 0.
   void start({
     required StepDeltaCallback onDelta,
     void Function()? onAnyEvent,
   }) {
+    if (isRunning) return; // prevent duplicate listeners
+
     _sub = Pedometer.stepCountStream.listen(
       (StepCount event) {
-        onAnyEvent?.call(); // <- mark that a real event arrived
+        onAnyEvent?.call();
 
         final now = DateTime.now();
         final current = event.steps; // cumulative since boot
-
-        int delta;
-        if (_lastCounter == null) {
-          delta = 0; // baseline
-        } else {
-          final raw = current - _lastCounter!;
-          delta = raw >= 0 ? raw : 0; // clamp on counter reset
-        }
+        final delta = (_lastCounter == null)
+            ? 0
+            : (current - _lastCounter!).clamp(
+                0,
+                1000,
+              ); // clamp negatives/spikes
         _lastCounter = current;
 
-        // Debug print
+        // Debug log helps with field testing
         // ignore: avoid_print
         print('[StepMonitor] counter=$current delta=$delta ts=$now');
 
@@ -39,12 +39,13 @@ class PedometerService {
         // ignore: avoid_print
         print('[StepMonitor] pedometer error: $e');
       },
+      cancelOnError: false,
     );
   }
 
   void stop() {
     _sub?.cancel();
     _sub = null;
-    _lastCounter = null; // <-- ensure fresh baseline next start
+    _lastCounter = null; // reset baseline next start
   }
 }
