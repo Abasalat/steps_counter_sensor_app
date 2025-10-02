@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "927813631383",
+    "project_id": "step-detector-app",
+    "storage_bucket": "step-detector-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:927813631383:android:98fb55934bc2a640e218d2",
+        "android_client_info": {
+          "package_name": "com.example.steps_counter_sensor_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCOqmYyYEttYW1JhTyeIKYIpkgGo8Z6kmU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
